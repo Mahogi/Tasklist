@@ -1,0 +1,50 @@
+#sarasas {
+     text-align: center;
+}
+
+#sarasas > ul {
+     display: inline-block;
+}
+
+.text-bullet-centered {
+     position: absolute;
+     left: -40px;
+     top: 50%;
+     transform: translate(0%, -50%);
+     font-weight: bold;
+   }
+
+body {
+     background-color: cadetblue;
+}
+
+#flash {
+     font-size: large;
+     display: inline-block;
+     padding-top: 15px;
+     padding-bottom: 15px;
+     padding-left: 15px;
+     padding-right: 15px;
+     background-color: powderblue;
+}
+
+#tasklists {
+     display: inline-block;
+     padding-top: 15px;
+     padding-bottom: 15px;
+     padding-left: 15px;
+     padding-right: 15px;
+     background-color: powderblue;
+}
+
+table {
+     border-style: double;
+     border-width: 7px;
+     border-collapse: collapse;
+     border-spacing: 0px;
+    
+}
+
+td {
+     padding: 5px;
+}
