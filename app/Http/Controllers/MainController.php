@@ -4,183 +4,115 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Validator;
-//use Illuminate\Support\Facades\Auth;
 use App\User;
+use App\Tasks;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class MainController extends Controller
 {
-    public $statusas = null;
-    function index(Request $request)
+    function index()
     {
         $users = User::all();
-        $statusas = $request->input('statusas');
-        if (!isset($statusas)){
-            $statusas = "";
-        }
-        return view('login', ['statusas' => $statusas, 'users' => $users]);
+        return view('login', ['users' => $users]);
     }
 
     function checklogin(Request $request)
     {
-        $this->validate($request, [
-            'name' => 'required',
-            'password' => 'required|AlphaNum|min:4'
-        ]);
-
-        /*$user_data = array (
+        $user_data = array (
             'name' => $request->get('name'),
-            'password' => $request->get('password')
+            'password' => $request->get('password')    
         );
-        $user_data = $request->only('name', 'password');*/
-
-        $user_name = $request->get('name');
-        $user_pass = $request->get('password');
-        $db = "tasklist";
-
-        $connection = mysqli_connect("localhost", "root", "", $db);
-        $query = "SELECT * FROM users WHERE name='$user_name' AND password='$user_pass'";
-        $result = mysqli_query($connection, $query);
-
-        if (mysqli_num_rows($result)==1)
+        if (Auth::attempt($user_data))
         {
-            session_start();
-            $_SESSION['tasklist']='true';
-            $_SESSION['user']=$user_name;
-            return redirect('main/successlogin');
+            $request->session()->put('user', $user_data['name']);
+            return view('tasklist2');
         }
-        else
+        else 
         {
-            return back()->with('error', 'Wrong login details!');
+            return back()->with('error1', 'Wrong login details!');
         }
-
-        /*if(Auth::attempt($user_data)){
-            return redirect('main/successlogin');
-        } else {
-            return back()->with('error', 'Wrong login details!');
-        }*/
-
     }
 
     function register(Request $request)
     {
-        $this->validate($request, [
+        $bool = $this->validate($request, [
             'name' => 'required',
             'password' => 'required|AlphaNum|min:4'
         ]);
 
-        if (!isset($request->name) || !isset($request->password)) 
+        if ($bool == true) 
         {
-            return redirect()->action('MainController@index', ['statusas' => 1 ]);//'Visi laukai privalomi'
+            User::create([
+                'name' => $request['name'],
+                'password' => Hash::make($request['password']),
+            ]);
+            return back()->with('success', 'Successfully registered!');
         }
-
-        $db = "tasklist";
-        $connection = mysqli_connect("localhost", "root", "", $db);
-        $query = "SELECT * FROM users WHERE name='$request->name'";
-        $result = mysqli_query($connection, $query);
-
-        if (mysqli_num_rows($result)==1)
-        {
-            return back()->with('error', 'This username already exists.');
-        }
-        else
-        {
-            $user = new User;
-            $user->name = $request->name;
-            $user->password = $request->password;
-            $user->save();
-            return redirect()->action('MainController@index', ['statusas' => 2 ]);
-        }
-
-        
     }
 
     function successlogin()
     {
-        return view('tasklist');
+        return view('tasklist2');
     }
 
-    function logout()
+    function logout(Request $request)
     {
-        session_start();
-        session_unset();
-        session_destroy();
+        $request->session()->flush();
         return redirect('main');
     }
 
-    function addTask(Request $request)
+    function create(Request $request)
     {
-        session_start();
         $creator = $request->get('creator');
         $task_name = $request->get('task');
         $task_imp = $request->get('important');
-
-        $connection = mysqli_connect("localhost", "root", "", "tasklist");
-        if ($connection->connect_error){
-            die("Connection failed: " . $connection->connect_error);
+        
+        if (isset($task_name)) {
+            $task = new Tasks;
+            $task->creator = $creator;
+            $task->task = $task_name;
+            $task->important = $task_imp;
+            if ($task_imp == null){ //gali buti sitas IF nereikalingas
+                $task_imp = false;
+            }
+            $task->save();
+            return back()->with('success', 'Task successfully created!');
+        } else {
+            return back()->with('error', 'Task field cannot be empty.' );
         }
         
-        if ($task_imp == null){
-            $task_imp = 0;
-        } 
+    }
 
-        $sql = "INSERT INTO tasklist (creator, task, important) VALUES ('$creator', '$task_name', '$task_imp')";
-        if ($connection->query($sql) === TRUE) {
-            $_SESSION["flash"] = "New entry was created successfully!";
-            return back();
-        } else {
-            $_SESSION["flash"] = 'Error: ' . $sql . "<br>" . $connection->error;
-            return back();
+    public function destroy($id)
+    {
+        $task = Tasks::find($id);
+        if (isset($task)){
+            $task->delete();
         }
+        return back()->with('success', 'Task successfully deleted!');
     }
 
-    function deleteTask(Request $request)
+    public function edit($id)
     {
-        session_start();
-            
-        $id = $request->get('id');
-        if (isset($id)){
-            $connection = mysqli_connect("localhost", "root", "", "tasklist");
-            $sql = "DELETE FROM tasklist WHERE id='$id'";
-            if ($connection->query($sql) === TRUE) {
-                $_SESSION["flash"] = "New entry was deleted successfully!";
-                mysqli_close($connection);
-                return back();
-            } else {
-                $_SESSION["flash"] = 'Error: ' . $sql . "<br>" . $connection->error;
-                return back();
-            }       
-        }
+        $task = Tasks::find($id);
+        return view('edit', ['task' => $task]);
     }
 
-    function editTask(Request $request)
+    public function update(Request $request, $id)
     {
-        $id = $request->get('id');
-        $task = $request->get('task');
-        $important = $request->get('important');
-        $data['id'] = $id;
-        $data['task'] = $task;
-        $data['important'] = $important;
-        return view('edit', $data);
+        $this->validate($request, [
+            'task' => 'required',
+        ]);
+        $task = Tasks::find($id);
+        $task->task = $request->get('task');
+        $task->important = $request->get('important');
+        $task->save();
+        return view('tasklist2')->with('success', 'Task successfully updated!');
     }
 
-    function dbEdit(Request $request)
-    {
-        session_start();
-        $id = $request->get('id');
-        $task = $request->get('task');
-        $important = $request->get('important');
-        $connection = mysqli_connect("localhost", "root", "", "tasklist");
-        $sql = "UPDATE tasklist SET task='$task', important='$important' WHERE id='$id'";
-        $_SESSION["flash"] = "Entry was changed successfully!";
-        if ($connection->query($sql) === TRUE) {
-            $_SESSION["flash"] = "Entry was changed successfully!" . "_" . $id . "_" . $task . "_" . $important;
-            mysqli_close($connection);
-            //return view('tasklist');
-            return redirect('main/successlogin'); //
-        } else {
-            $_SESSION["flash"] = 'Error: ' . $sql . "<br>" . $connection->error;
-            return redirect('main/successlogin');
-            //return view('tasklist');
-        }  
-    }
+    //public function show()
+    //{
+
+   // }
 }

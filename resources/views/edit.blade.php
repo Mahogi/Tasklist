@@ -1,4 +1,4 @@
-<h2>Edit task: "{{$task}}":</h2>
+<h2>Edit task: "{{$task->task}}":</h2>
 
 @if(count($errors) > 0)
 <div class="alert alert-danger"
@@ -9,11 +9,11 @@
     </ul>
 @endif
 
-<form method="POST" action="{{url('main/dbEdit')}}"> 
+<form method="POST"  action="{{action('MainController@update', $task->id)}}"> 
     {{ csrf_field() }}
-    <input type="hidden" name="id" value="{{$id}}">
-    <input type="text" name="task" value="{{$task}}">
+    {{ method_field('PUT') }}
+    <input type="text" name="task" value="{{$task->task}}">
     <label for="imp">Is this task important?</label>
-    <input type="checkbox" name="important" id="imp" value="1" <?php if ($important == 1) echo "checked='checked'"; ?>>
+    <input type="checkbox" name="important" id="imp" value="1" <?php if ($task->important == 1) echo "checked='checked'"; ?>>
     <input type="submit" value="Change">
 </form>

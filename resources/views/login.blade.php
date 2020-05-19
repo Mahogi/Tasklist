@@ -15,30 +15,18 @@ session_start();
 
 <body style="background-color:powderblue;">
 
-    @if(isset($_SESSION['user']))
+    @if(session()->has('user')))
         <script> window.location="/main/successlogin";</script>
     @endif
     
 
     <h1><center> LOGIN INTO TASKLIST </center></h1>
 
-    @if ($message = Session::get('error'))
+    @if ($message = session()->get('error1'))
     <div class="alert alert-danger alert-block">
-        <button type="button" class="close" data-dismiss="alert"> X </button>
-        <strong> {{ $message }} </strong>
+        <center><button type="button" class="close" data-dismiss="alert"> X </button>
+        <strong> {{ $message }} </strong></center><br>
     </div>
-    @endif
-    
-    @if(count($errors)>0)
-        <div class="alert alert-danger">
-            <ul>
-                @foreach($errors->all() as $error)
-                    <ul> 
-                        <li> {{ $error }}</li> 
-                    </ul>
-                @endforeach
-            </ul>    
-        </div>
     @endif
 
     <form method="POST" action=" {{ url('/main/checklogin') }}"> 
@@ -53,13 +41,30 @@ session_start();
     <hr>
     <h2><center> Not registered yet? </center></h2>
 
-        <p>
-            @if ($statusas == 1)
-            <center>Failed to create...</center>
-            @elseif ($statusas == 2)
-            <center>User wuccessfully created!</center>
-            @endif
-            </p>
+    @if(count($errors)>0)
+        <div id="sarasas" class="alert alert-danger">
+            <ul id="sarasas">
+                @foreach($errors->all() as $error)
+                <div class="alert alert-danger alert-block">
+                    <li><strong> {{ $error }} </strong></li>
+                </div>
+                @endforeach
+            </ul>    
+        </div>
+    @endif
+
+    @if ($message = session()->get('error2'))
+    <div class="alert alert-danger alert-block">
+        <center><button type="button" class="close" data-dismiss="alert"> X </button>
+        <strong> {{ $message }} </strong></center><br>
+    </div>
+    @endif
+    @if ($message = Session::get('success'))
+    <div>
+        <center><button type="button" class="close" data-dismiss="alert"> &#x2714 </button>
+        <strong> {{ $message }} </strong></center><br>
+    </div>
+    @endif
 
         <form method="POST" action=" {{ url('/main/register') }}"> 
             @csrf
@@ -78,7 +83,7 @@ session_start();
         <ul>
             @foreach ($users as $user)
             <tr>
-                <td><li id>{{ $user->name }} </li></td>
+                <td><li>{{ $user->name }} </li></td>
             </tr>
             @endforeach
         </ul>

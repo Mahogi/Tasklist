@@ -18,6 +18,26 @@ body {
      background-color: cadetblue;
 }
 
+#success {
+     font-size: large;
+     display: inline-block;
+     padding-top: 15px;
+     padding-bottom: 15px;
+     padding-left: 15px;
+     padding-right: 15px;
+     background-color: greenyellow;
+}
+
+#error {
+     font-size: large;
+     display: inline-block;
+     padding-top: 15px;
+     padding-bottom: 15px;
+     padding-left: 15px;
+     padding-right: 15px;
+     background-color: red;
+}
+
 #flash {
      font-size: large;
      display: inline-block;

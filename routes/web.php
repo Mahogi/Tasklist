@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+//use Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,14 +18,12 @@ Route::get('/', function () {
     return redirect('/main');
 });
 
+//Auth::routes();
+
+Route::resource('main', 'MainController')->except(['show']);
+Route::resource('main', 'MainController');
 Route::get('/main', 'MainController@index');
 Route::post('/main/checklogin', 'MainController@checklogin');
 Route::post('/main/register', 'MainController@register');
 Route::get('/main/successlogin', 'MainController@successlogin');
 Route::get('/main/logout', 'MainController@logout');
-Route::post('/main/addTask', 'MainController@addTask');
-Route::post('/main/deleteTask', 'MainController@deleteTask');
-Route::post('/main/editTask', 'MainController@editTask');
-Route::post('/main/dbEdit', 'MainController@dbEdit');
-//Route::post('edit', 'edit@editT');
-
