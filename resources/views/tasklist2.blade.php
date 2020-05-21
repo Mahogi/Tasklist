@@ -17,6 +17,12 @@ $usertask = Tasks::where('creator', $user)->orderBy('id')->get();
 
 <h1> Welcome, {{ $user }} !</h1> 
 
+<form action=" {{ url('/main/changePass') }}"> 
+    @csrf
+    <input type="hidden" name="user" value="{{$user}}">
+    <input class="btn btn-default" type="submit" value="Change password">
+</form>
+
 @if ($message = session()->get('success'))
     <div id="success">
         <button type="button" class="close" data-dismiss="alert"> &#x2714 </button>
@@ -34,7 +40,7 @@ $usertask = Tasks::where('creator', $user)->orderBy('id')->get();
 <br>
 <div id="tasklists">
 Add a new task:
-<form method="GET" action="/main/create">
+<form method="GET" action="/task/create">
     @csrf
     <input type="hidden" name="creator" value="{{$user}}">
     <input type="text" name="task" placeholder="Task name">
@@ -55,6 +61,7 @@ Add a new task:
                 <th> Important? </th>
                 <th> Change </th>
                 <th> Delete </th>
+                <th> Complete? </th>
             </tr>
             @foreach ($usertask as $task)
             <tr>
@@ -66,15 +73,25 @@ Add a new task:
                         <center>No</center>
                     @endif
                 </td>
-                <td><center> 
-                    <a href="{{action('MainController@edit', $task->id)}}"> <input class="btn btn-default" type="submit" value="Edit" /> </a>
-                </center>
+                <td>@if ($task->complete == null)
+                    <a href="{{action('TaskController@edit', $task->id)}}"> <input id="button" class="btn btn-default" type="submit" value="Edit" /> </a> 
+                    @endif         
                 </td>
-                <td><center> <form method="POST" action="/main/{{$task->id}}">
+                <td>
+                    <form method="POST" action="/task/{{$task->id}}">
                         @csrf
-                        <input class="btn btn-default" type="submit" value="Delete" /> 
+                        <input id="button" class="btn btn-default" type="submit" value="Delete" />
                         @method('DELETE')               
-                    </form></center> 
+                    </form>
+                </td>
+                <td> @if ($task->complete == null)
+                    <form action=" {{ url('/task/complete') }}"> 
+                        <input type="hidden" name="id" value="{{$task->id}}">
+                        <input id="button" type="submit" class="btn btn-default" value="Complete" >
+                    </form>
+                    @else 
+                        <center>Completed!</center>
+                    @endif
                 </td>
             </tr>
         @endforeach
@@ -96,17 +113,19 @@ Add a new task:
                 <th> Important? </th>
             </tr>
             @foreach ($tasks as $task)
-            <tr>
-                <td> <?php echo $task->id; ?></td>
-                <td> <?php echo $task->creator; ?></td>
-                <td> <?php echo $task->task; ?></td>
-                <td>  @if ($task->important == 1)
-                        <center>✯ Yes ✯</center>
-                    @else 
-                        <center>No</center>
-                    @endif
-                </td>
-            </tr>
+                @if ($task->complete == 0)
+                <tr>
+                    <td> <?php echo $task->id; ?></td>
+                    <td> <?php echo $task->creator; ?></td>
+                    <td> <?php echo $task->task; ?></td>
+                    <td>  @if ($task->important == 1)
+                            <center>✯ Yes ✯</center>
+                        @else 
+                            <center>No</center>
+                        @endif
+                    </td>
+                </tr>
+                @endif
             @endforeach
         </table>
         <br>
@@ -116,6 +135,9 @@ Add a new task:
 
     <form action=" {{ url('/main/logout') }}"> 
         <input type="submit" name="logout" class="btn btn-primary" value="Log out">
+    </form> 
+    <form action=" {{ url('/main/deleteAccount') }}"> 
+        <input type="hidden" name="creator" value="{{$user}}">
+        <input type="submit" name="logout" class="btn btn-primary" value="Delete account" onclick="return confirm('Are you sure?')">
     </form>
-
 </body>

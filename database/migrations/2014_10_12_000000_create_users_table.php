@@ -17,7 +17,9 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('password');
+            $table->boolean('admin')->nullable();
             $table->timestamps();
+            //$table->foreign('id')->references('user_id')->on('tasks')->onDelete('cascade');
         });
     }
 
@@ -29,5 +31,10 @@ class CreateUsersTable extends Migration
     public function down()
     {
         Schema::dropIfExists('users');
+    }
+
+    public function boot()
+    {
+        Schema::defaultStringLength(191);
     }
 }

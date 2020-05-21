@@ -20,10 +20,22 @@ Route::get('/', function () {
 
 //Auth::routes();
 
-Route::resource('main', 'MainController')->except(['show']);
-Route::resource('main', 'MainController');
+Route::resource('task', 'TaskController')->except(['show']);
 Route::get('/main', 'MainController@index');
 Route::post('/main/checklogin', 'MainController@checklogin');
 Route::post('/main/register', 'MainController@register');
 Route::get('/main/successlogin', 'MainController@successlogin');
 Route::get('/main/logout', 'MainController@logout');
+
+Route::get('/main/changePass', 'UserController@changePass');
+Route::get('/main/editPass', 'UserController@editPass');
+Route::get('/main/deleteAccount', 'UserController@deleteAccount');
+
+Route::get('/task/complete', 'TaskController@complete');
+
+//change password
+//make admin account per seeds
+//make task complete - done
+//delete account
+//auth routes...
+//make new controllers for tasklist (middleware->user), and for delete account / change password (middleware->user)

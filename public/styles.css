@@ -61,10 +61,15 @@ table {
      border-style: double;
      border-width: 7px;
      border-collapse: collapse;
-     border-spacing: 0px;
-    
+     border-spacing: 0px; 
 }
 
 td {
      padding: 5px;
 }
+
+input[id="button"]{
+     cursor:pointer;
+     -webkit-border-radius: 5px;
+     border-radius: 5px; 
+ }

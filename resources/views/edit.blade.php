@@ -1,7 +1,7 @@
 <h2>Edit task: "{{$task->task}}":</h2>
 
 @if(count($errors) > 0)
-<div class="alert alert-danger"
+<div class="alert alert-danger">
     <ul>
     @foreach($errors->all() as $error)
         <li>{{$error}}</li>
@@ -9,7 +9,7 @@
     </ul>
 @endif
 
-<form method="POST"  action="{{action('MainController@update', $task->id)}}"> 
+<form method="POST"  action="{{action('TaskController@update', $task->id)}}"> 
     {{ csrf_field() }}
     {{ method_field('PUT') }}
     <input type="text" name="task" value="{{$task->task}}">
